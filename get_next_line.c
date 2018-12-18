@@ -6,55 +6,66 @@
 */
 
 #include "get_next_line.h"
-#include "my.h"
-#include <unistd.h>
-#include <stdlib.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-int fd = -1;
-int line = 0;
+char *my_realloc(char *ptr)
+{
+    char *temp = ptr;
+    int i = 0;
+
+    ptr = malloc(sizeof(ptr) * READ_SIZE);
+    while (temp[i]) {
+        ptr[i] = temp[i];
+        i++;
+    }
+    return (ptr);
+}
 
 void my_putchar(char c)
 {
     write(1, &c, 1);
 }
 
-void open_file(void)
+void move_ptr(char **str, int count)
 {
-    fd = open("test.txt", O_RDONLY);
+    for (int i = 0; i < count; i++) {
+        **str++;
+    }
 }
 
-void close_file(void)
+char *read_line(int fd)
 {
+    char *str = malloc(sizeof(char) * READ_SIZE);
+    char *buffer = malloc(sizeof(char) * READ_SIZE);
+    static int count = 0;
+    int size = read(fd, buffer, READ_SIZE);
+    int sizeStr = 0;
+
+    buffer[size] = '\0';
+    while (*buffer != '\n') {
+        if (sizeStr > 0) {
+            size = read(fd, buffer, READ_SIZE);
+            str = my_realloc(str);
+            buffer[size] = '\0';
+        }
+        count = 0;
+        for (; *buffer != '\n' && count < size; *buffer++) {
+            str[sizeStr] = *buffer;
+            count++;
+            sizeStr++;
+        }
+    }
+    return (str);
+}
+
+char *get_next_line(int fd)
+{
+    char *s = read_line(fd);
+
     if (fd != -1)
         close(fd);
-}
-
-char *get_next_line(int fd2)
-{
-    char buffer[4096];
-    char *s = malloc(sizeof(char) * READ_SIZE);
-    int j = 0;
-    int i;
-
-    fd = fd2;
-    open_file();
-    read(fd, buffer, READ_SIZE);
-    for (i = 0; buffer[i] != '\n' && i < READ_SIZE; i++) {
-        s[j] = buffer[i];
-        j++;
-    }
-    if (buffer[i] == '\n') {
-        line++;
-    } else {
-        read(fd, buffer, READ_SIZE);
-        for (i = 0; buffer[i] != '\n' && i < READ_SIZE; i++) {
-            s[j] = buffer[i];
-            j++;
-        }
-        if (buffer[i] == '\n')
-            line++;
-    }
-    close_file();
     return (s);
 }
