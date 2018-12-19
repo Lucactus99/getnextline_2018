@@ -39,9 +39,24 @@ void my_putchar(char c)
     write(1, &c, 1);
 }
 
-char *read_line(char *str, int sizeStr)
+char *read_line(char **buffer, char *str, int sizeStr, int fd)
 {
+    int size;
+    int count = 0;
 
+    while (*buffer[0] != '\n') {
+        size = read(fd, buffer[0], READ_SIZE);
+        str = my_realloc(str);
+        buffer[0][size] = '\0';
+        count = 0;
+        for (; *buffer[0] != '\n' && count < size; *buffer[0]++) {
+            str[sizeStr] = *buffer[0];
+            count++;
+            sizeStr++;
+        }
+    }
+    *buffer[0]++;
+    return (str);
 }
 
 char *get_next_line(int fd)
@@ -49,26 +64,13 @@ char *get_next_line(int fd)
     char *str = malloc(sizeof(char) * READ_SIZE);
     char *buffer = malloc(sizeof(char) * READ_SIZE);
     static char over[READ_SIZE];
-    int count = 0;
-    int size;
     int sizeStr = 0;
 
     for (int i = 0; over[i] != 0; i++) {
         str[i] = over[i];
         sizeStr++;
     }
-    while (*buffer != '\n') {
-        size = read(fd, buffer, READ_SIZE);
-        str = my_realloc(str);
-        buffer[size] = '\0';
-        count = 0;
-        for (; *buffer != '\n' && count < size; *buffer++) {
-            str[sizeStr] = *buffer;
-            count++;
-            sizeStr++;
-        }
-    }
-    *buffer++;
+    str = read_line(&buffer, str, sizeStr, fd);
     for (int i = 0; *buffer != '\0'; i++) {
         over[i] = *buffer;
         *buffer++;
