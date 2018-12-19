@@ -41,11 +41,13 @@ void my_putchar(char c)
 
 char *read_line(char **buffer, char *str, int sizeStr, int fd)
 {
-    int size;
+    int size = 1;
     int count = 0;
 
     while (*buffer[0] != '\n') {
         size = read(fd, buffer[0], READ_SIZE);
+        if (size <= 0)
+            return (NULL);
         str = my_realloc(str);
         buffer[0][size] = '\0';
         count = 0;
@@ -66,6 +68,8 @@ char *get_next_line(int fd)
     static char over[READ_SIZE];
     int sizeStr = 0;
 
+    if (!str || !buffer || fd == -1 || READ_SIZE < 1)
+        return (NULL);
     for (int i = 0; over[i] != 0; i++) {
         str[i] = over[i];
         sizeStr++;
