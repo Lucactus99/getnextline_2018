@@ -34,11 +34,6 @@ char *my_realloc(char *ptr)
     return (ptr);
 }
 
-void my_putchar(char c)
-{
-    write(1, &c, 1);
-}
-
 char *read_line(char **buffer, char *str, int sizeStr, int fd)
 {
     int size = 1;
