@@ -67,6 +67,7 @@ char *get_next_line(int fd)
         return (NULL);
     for (int i = 0; over[i] != 0; i++) {
         str[i] = over[i];
+        over[i] = 0;
         sizeStr++;
     }
     str = read_line(&buffer, str, sizeStr, fd);
