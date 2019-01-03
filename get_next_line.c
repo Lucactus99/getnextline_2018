@@ -71,7 +71,7 @@ static int put_in_str(char **buffer, char **str)
     return (i);
 }
 
-char *get_next_line(const int fd)
+char *get_next_line(int fd)
 {
     static char *buffer;
     char *str;
