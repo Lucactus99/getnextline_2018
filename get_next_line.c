@@ -63,7 +63,7 @@ static int put_in_str(char **buffer, char **str)
     *str = malloc(sizeof(char) * (READ_SIZE + 1));
     if (*str == NULL)
         return (84);
-    while (**buffer != 0 && (*(*buffer - 1) != '\n' || i == 0)) {
+    while (buffer != NULL && **buffer != 0 && (*(*buffer) - 1 != '\n' || i == 0)) {
         (*str)[i] = **buffer;
         (*buffer)++;
         i++;
