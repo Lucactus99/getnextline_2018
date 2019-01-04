@@ -50,7 +50,7 @@ static int alloc_buffer(const int fd, char **buffer)
     if (*buffer == NULL)
         return (84);
     i = read(fd, *buffer, READ_SIZE);
-    if (i == -1)
+    if (i < 0)
         return (84);
     (*buffer)[i] = 0;
     return (0);
@@ -77,7 +77,7 @@ char *get_next_line(int fd)
     char *str;
     int i;
 
-    if (fd == -1)
+    if (fd < 0)
         return (NULL);
     if (buffer == NULL || buffer[0] == 0) {
         if (alloc_buffer(fd, &buffer) == 84)
