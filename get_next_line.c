@@ -8,6 +8,7 @@
 #include "get_next_line.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
 int my_strlen(char *str)
 {
@@ -42,18 +43,17 @@ static char *my_strcat(char *str1, char *str2)
     return (result);
 }
 
-static int alloc_buffer(const int fd, char **buffer)
+static void alloc_buffer(const int fd, char **buffer)
 {
     int i;
 
     *buffer = malloc(sizeof(char) * (READ_SIZE + 1));
     if (*buffer == NULL)
-        return (84);
+        return;
     i = read(fd, *buffer, READ_SIZE);
     if (i < 0)
-        return (84);
+        return;
     (*buffer)[i] = 0;
-    return (0);
 }
 
 static int put_in_str(char **buffer, char **str)
@@ -62,10 +62,10 @@ static int put_in_str(char **buffer, char **str)
 
     *str = malloc(sizeof(char) * (READ_SIZE + 1));
     if (*str == NULL)
-        return (84);
-    while (buffer != NULL && **buffer != 0 && (*(*buffer) - 1 != '\n' || i == 0)) {
-        (*str)[i] = **buffer;
-        (*buffer)++;
+        return (-1);
+    while (**buffer != 0 && (*(*buffer - 1) != '\n' || i == 0)) {
+        str[0][i] = **buffer;
+        *buffer[0]++;
         i++;
     }
     return (i);
@@ -79,12 +79,12 @@ char *get_next_line(int fd)
 
     if (fd < 0)
         return (NULL);
-    if (buffer == NULL || buffer[0] == 0) {
-        if (alloc_buffer(fd, &buffer) == 84)
-            return (NULL);
-    }
+    if (buffer == NULL || buffer[0] == 0)
+        alloc_buffer(fd, &buffer);
+    if (buffer == NULL || buffer[0] == 0)
+        return (NULL);
     i = put_in_str(&buffer, &str);
-    if (i == -1)
+    if (i < 0)
         return (NULL);
     str[i] = 0;
     if (i != 0 && str[i - 1] == '\n')
